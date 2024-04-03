@@ -3,14 +3,19 @@ import pandas as pd
 import subprocess
 from Bio.PDB.MMCIF2Dict import MMCIF2Dict
 import os
+import numpy as np
 import torch
 import torch.nn as nn
 import os
 import numpy as np
 from Bio.PDB.DSSP import DSSP
+from glob import glob
+import hashlib
+
+
+
 
 # Set the working directory
-os.chdir('/Users/allalelhommad/PYT/SBPYT_project')
 
 class ProteinFeatures:
     
@@ -21,12 +26,13 @@ class ProteinFeatures:
         self.parser = PDBParser(QUIET=True)
         self.amino_acids = ['ALA', 'CYS', 'ASP', 'GLU', 'PHE', 'GLY', 'HIS', 'ILE', 'LYS', 'LEU', 
                             'MET', 'ASN', 'PRO', 'GLN', 'ARG', 'SER', 'THR', 'VAL', 'TRP', 'TYR']
-        self.secondary_structure_codes = ['H', 'B', 'E', 'G', 'I', 'T', 'S', ' ', '.']
+        self.secondary_structure_codes = ['H', 'B', 'E', 'G', 'I', 'T', 'S', ' ', '-', 'P']
         self.pocket_residues = self.load_pocket_residues()
         torch.manual_seed(42)  # Set a fixed seed for random number generation
         self.structure = self.parser.get_structure('protein', self.pdb_file)
         self.encoding_ss, self.encoding_aa = self.one_hot_encoding() 
 
+    
     
     def extract_sequence(self):
         parser = PDBParser()
@@ -61,13 +67,12 @@ class ProteinFeatures:
                 residue_key = (chain.id, residue.resname)
                 try:
                     alpha_carbon = residue['CA']  # Assuming the alpha carbon is labeled as 'CA'
-                    contacts = ns.search(alpha_carbon.get_coord(), 5.0, level='A')  # Search within 10Å radius
-                    total_contact_dict[residue_key] = len(contacts) - 1  # Subtract 1 to exclude the residue itself
+                    contacts = ns.search(alpha_carbon.get_coord(), 5.0, level='A')  # Search within 5Å radius
+                    total_contact_dict[residue_key] = len(contacts) - 1  # Subtract 1 to eX_train_train_train_train_train_train_train_train_train_trainclude the residue itself
                 except KeyError:
                     total_contact_dict[residue_key] = 0  # Set total contact to 0 if alpha carbon is missing
 
         return total_contact_dict
-
 
 
     
@@ -123,35 +128,45 @@ class ProteinFeatures:
             encoding_aa[amino_acid] = one_hot_vector_aa
         
         return encoding_ss, encoding_aa
-
-
+    
+    def pdb_id_to_numeric(self, pdb_id):
+        """Converts a PDB ID to a numeric value using hashing."""
+        # This is a simple way to convert a string to a unique integer
+        hash_object = hashlib.sha256(pdb_id.encode())
+        # Take the first 8 characters of the hash and convert them to an integer
+        hash_hex = hash_object.hexdigest()[:8]
+        hash_int = int(hash_hex, 16)
+        return hash_int
+    
     def extract_features(self):
         structure = self.parser.get_structure('protein', self.pdb_file)
-        model = structure[0]  # Assuming a single model for simplicity
+        model = structure[0]  # Asumiendo un único modelo para simplificar
+        # Inicializar listas para mantener las características extraídas
         dssp_data = self.extract_secondary_structure()
         all_features = []
         for chain in model.get_chains():
             for residue in chain.get_residues():
-                if residue.get_id()[0] == ' ':  # Only standard residues
+                if residue.get_id()[0] == ' ':  # Solo residuos estándar
                     residue_id = residue.get_id()
                     pdb_id = self.pdb_file.split('/')[-1].split('.')[0]
+                    pdb_id_numeric = self.pdb_id_to_numeric(pdb_id)
                     residue_name = residue.get_resname()
                     secondary_structure = dssp_data.get((chain.id, residue_id[1]), {}).get('secondary_structure', ' ')
                     solvent_accessibility = dssp_data.get((chain.id, residue_id[1]), {}).get('solvent_accessibility', 0)
-                    psi_angle = dssp_data.get((chain.id, residue_id[1]), {}).get('psi', 0)
-                    phi_angle = dssp_data.get((chain.id, residue_id[1]), {}).get('phi', 0)
+                    solvent_accessibility = float(solvent_accessibility) if solvent_accessibility else 0
+                    psi_angle = dssp_data.get((chain.id, residue_id[1]), {}).get('psi', np.nan)
+                    phi_angle = dssp_data.get((chain.id, residue_id[1]), {}).get('phi', np.nan)
                     In_pocket = int((chain.id, str(residue_id[1])) in self.pocket_residues)
                     total_contact = self.calculate_total_contact().get((chain.id, residue.resname), 0)
-                    secondary_structure_one_hot = [self.encoding_ss[code] for code in secondary_structure]
                     amino_acid_one_hot = self.encoding_aa[residue_name]
-
+                    secondary_structure_one_hot = [self.encoding_ss[code] for code in secondary_structure]
+        
                     feature_dict = {
-                        'PDB_ID': f'{chain.id}_{residue_id[1]}_{residue_name}',
-                        'PDB':pdb_id,
+                        'PDB_ID': pdb_id,
                         'Residue_Name': amino_acid_one_hot,
                         'In_Pocket': In_pocket,
                         'Secondary_structure': secondary_structure_one_hot,
-                        'Solvent_accesibility': float(solvent_accessibility),
+                        'Solvent_accessibility': solvent_accessibility,
                         'Psi_angle': psi_angle,
                         'Phi_angle': phi_angle,
                         'Total_contact': total_contact,
@@ -161,18 +176,23 @@ class ProteinFeatures:
                     
         return all_features
 
-pdbnames=['1uho','1x8v','182l','1upv','3ies','3zsx','3zvu','4m12','4m13']
-pdb_files=[f'dataset/{pdbname}.pdb' for pdbname in pdbnames]
-pocket_pdb_files=[f'dataset/pocket_pdb/{pdbname}_pocket.pdb' for pdbname in pdbnames]
 
-def features(pdb_files, pocket_pdb_files):
-    all_features = []  # Initialize an empty list to accumulate features for all PDB files
-    for pdb_file, pocket_pdb_file in zip(pdb_files, pocket_pdb_files):
+def featurizer(test_matched_files):
+    all_features_list = []
+    for pdb_file, pocket_pdb_file in test_matched_files:
         pf = ProteinFeatures(pdb_file, pocket_pdb_file)
-        features = pf.extract_features()
-        all_features.extend(features)  # Append features for the current PDB file to the list
-    return all_features
+        features_list = pf.extract_features()  # This is a list of dictionaries
+        all_features_list.extend(features_list)  # Append features for the current PDB file to the list
+    return all_features_list
 
 
-df = pd.DataFrame(features(pdb_files, pocket_pdb_files))
-df.to_csv('tentest.csv', index=False)
+
+# Example of how to call the matched_pdb_files function
+# pdb_dir = '/Users/javierherranzdelcerro/Desktop/PYT_SBI/SBPYT_project/raw_pdb'
+# pocket_dir = '/Users/javierherranzdelcerro/Desktop/PYT_SBI/SBPYT_project/dataset/pocket_pdb'
+# matched_pdb_files, matched_pocket_files = matched_pdb_files(pdb_dir, pocket_dir)
+# matched_files = list(zip(matched_pdb_files, matched_pocket_files))[:1]
+# features_dict = extract_features_for_matched_pdb_files(matched_files)
+# print(features_dict)
+
+

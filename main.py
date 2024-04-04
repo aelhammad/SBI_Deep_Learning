@@ -86,8 +86,8 @@ def predict_pdb(pdb_file_path, verbose=False):
 
         predicted_binding_pocket_lines = []
 
-        output_residues = []
-        with open(pdb_file_path, 'r') as pdb_input:
+        output_residues = [] 
+        with open(pdb_file_path, 'r') as pdb_input: # Read the input PDB file
             for line in pdb_input:
                 if line.startswith('ATOM'):
                     residue_number = int(line[22:26].strip())
@@ -114,11 +114,11 @@ def predict_pdb(pdb_file_path, verbose=False):
         output_pdb_file = os.path.join(output_dir, f'predicted_binding_pocket_{pdb_file_name}')
         output_txt_file = os.path.join(output_dir, f'{pdb_file_name}_predicted_pocket.txt')
 
-        with open(output_txt_file, 'w') as output_txt:
+        with open(output_txt_file, 'w') as output_txt: # Save the predicted binding pocket residues to a text file
             for residue_name, residue_number, chain in output_residues:
                 output_txt.write(f"{residue_name} {residue_number} {chain}\n")
 
-        with open(output_pdb_file, 'w') as output_pdb:
+        with open(output_pdb_file, 'w') as output_pdb: # Save the predicted binding pocket residues to a PDB file
             output_pdb.write(''.join(predicted_binding_pocket_lines))
         
         # Print the output_residues to standard output
@@ -128,15 +128,15 @@ def predict_pdb(pdb_file_path, verbose=False):
         print(f"Predicted binding pocket residues saved to {output_txt_file}")
         print(f"Predicted binding pocket PDB saved to {output_pdb_file}")
 
-    except FileNotFoundError:
+    except FileNotFoundError: # Handle file not found error
         print("Error: PDB file not found.")
     except PDBConstructionException as e:
         print(f"Error: Unable to parse the PDB file: {e}")
-    except Exception as e:
+    except Exception as e: # Handle other exceptions
         print(f"Error: An unexpected error occurred: {e}")
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description='Predict binding pocket residues in a given PDB file.')
+    parser = argparse.ArgumentParser(description='Predict binding pocket residues in a given PDB file.') # Create an ArgumentParser object
     parser.add_argument('--trust_level', type=float, default=0.7, help='Trust level for the prediction')
     parser.add_argument('pdb_file_path', type=str, help='Path to the input PDB file')
     parser.add_argument('--verbose','-v', action='store_true', help='Enable verbose mode')

@@ -31,7 +31,7 @@ def predict_pdb(pdb_file_path, verbose=False):
         for _ in range(3):  # Print three dots
             print(".", end="", flush=True)
             time.sleep(1)  # Wait for one second between dots
-
+        print("\n")
         # Redirect stdout and stderr to suppress output and warnings
         if not verbose:
             sys.stdout = open(os.devnull, 'w')

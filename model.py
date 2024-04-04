@@ -7,24 +7,25 @@ from torch.utils.data import DataLoader, TensorDataset
 import pandas as pd
 import pickle
 from torch.optim.lr_scheduler import StepLR
+import matplotlib.pyplot as plt
+from sklearn.metrics import roc_curve, auc
 
-with open('train_features_11.pkl', 'rb') as f:
-    train_features = pickle.load(f)
 
-with open('test_features_4.pkl', 'rb') as f:
-    test_features = pickle.load(f)
-
-with open('val_features_5.pkl', 'rb') as f:
-    val_features = pickle.load(f)
-
-#with open('sample_dataframe.csv') as f:
-#    train_features = pd.read_csv(f)
+# Function to preprocess the features
 def preprocess_features(features):
+    '''
+    Preprocess the features for training.
+
+    Args:
+        features (dict): Dictionary containing features.
+
+    Returns:
+        dict: Dictionary containing preprocessed features.
+    '''
     df = pd.DataFrame(features)
     df['Psi_angle'].fillna(df['Psi_angle'].mean(), inplace=True)
     df['Phi_angle'].fillna(df['Phi_angle'].mean(), inplace=True)
-    nan_in_df = df.isna().any()
-
+    
     pdb_data = {}
     for pdb_id, data in df.groupby('PDB_ID'):
         pdb_data[pdb_id] = data
@@ -56,112 +57,138 @@ def preprocess_features(features):
 
         y_tensor = torch.tensor(y.values, dtype=torch.float32)
 
-        min_val_X = torch.min(X_tensor)
-        max_val_X = torch.max(X_tensor)
-
-        X_tensor_normalized = (X_tensor - min_val_X) / (max_val_X - min_val_X)
-
-        min_val_y = torch.min(y_tensor)
-        max_val_y = torch.max(y_tensor)
-
-        y_tensor_normalized = (y_tensor - min_val_y) / (max_val_y - min_val_y)
-
         dataset = TensorDataset(X_tensor, y_tensor)
         loader = DataLoader(dataset, batch_size=32, shuffle=True)
 
         loaders[pdb_id] = loader
-
     return loaders
 
-train_loaders = preprocess_features(train_features)
-test_loaders = preprocess_features(test_features)
-val_loaders = preprocess_features(val_features)
-    
+# Define the neural network model
 class MyModel(nn.Module):
+    '''Neural network model for binary classification.'''
     def __init__(self, input_size):
         super(MyModel, self).__init__()
         self.fc1 = nn.Linear(input_size, 64)
         self.fc2 = nn.Linear(64, 32)
-        self.fc3 = nn.Linear(32, 1)  # Capa de salida, asumiendo clasificación binaria
+        self.fc3 = nn.Linear(32, 1)  # Output layer, assuming binary classification
 
     def forward(self, x):
+        '''Forward pass of the neural network.'''
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
-        x = self.fc3(x)  # No hay función de activación para la capa de salida
+        x = self.fc3(x)  # No activation function for the output layer
         return x
 
-
-
 if __name__ == "__main__":
-    # Inicializar tu modelo
-    #input_size = X_tensor.shape[1]
+    # Initialize the model
     input_size = 34
     model = MyModel(input_size)
 
-    # Definir la función de pérdida y el optimizador
-    criterion = nn.BCEWithLogitsLoss()  # Pérdida de entropía cruzada binaria para la clasificación binaria
-    optimizer = optim.Adam(model.parameters(), lr=0.001)  # Optimizador Adam con tasa de aprendizaje 0.001
+    # Define the loss function and optimizer
+    criterion = nn.BCEWithLogitsLoss()  # Binary cross-entropy loss for binary classification
+    optimizer = optim.Adam(model.parameters(), lr=0.001)  # Adam optimizer with learning rate 0.001
 
-    # Definir el programador de la tasa de aprendizaje
-    scheduler = StepLR(optimizer, step_size=10, gamma=0.1)  # Reducir la tasa de aprendizaje a la mitad cada 10 épocas
+    # Define the learning rate scheduler
+    scheduler = StepLR(optimizer, step_size=10, gamma=0.5)  # Reduce the learning rate by half every 10 epochs
+    # Load train, test, and validation features from pickle files
+    with open('datasets/train_features_final.pkl', 'rb') as f:
+        train_features = pickle.load(f)
 
-    # Bucle de entrenamiento
-    num_epochs = 30
+    with open('datasets/test_features_final.pkl', 'rb') as f:
+        test_features = pickle.load(f)
+
+    with open('datasets/val_features_final.pkl', 'rb') as f:
+        val_features = pickle.load(f)
+    # Preprocess the train, test, and validation features
+    train_loaders = preprocess_features(train_features)
+    test_loaders = preprocess_features(test_features)
+    val_loaders = preprocess_features(val_features)
+    # Training loop
+    num_epochs = 100
+    train_losses = []
+    val_losses = []
     for epoch in range(num_epochs):
-        model.train()  # Poner el modelo en modo de entrenamiento
+        model.train()  # Set the model to training mode
         train_loss = 0.0
         for pdb_id, loader in train_loaders.items():
             for inputs, labels in loader:
-                optimizer.zero_grad()  # Poner a cero los gradientes
-                outputs = model(inputs)  # Paso hacia adelante
+                optimizer.zero_grad()  # Zero the gradients
+                outputs = model(inputs)  # Forward pass
                 labels = labels.view(-1, 1)
-                loss = criterion(outputs.squeeze(), labels.squeeze())  # Calcular la pérdida
-                loss.backward()  # Paso hacia atrás
-                optimizer.step()  # Actualizar los pesos
+                loss = criterion(outputs.squeeze(), labels.squeeze())  # Calculate the loss
+                loss.backward()  # Backward pass
+                optimizer.step()  # Update the weights
                 train_loss += loss.item() * inputs.size(0)
             train_loss /= len(loader.dataset)
 
-        # Imprimir las estadísticas de entrenamiento
+        # Print training statistics
         print(f'Epoch {epoch + 1}/{num_epochs}, Training Loss: {train_loss:.4f}')
+        train_losses.append(train_loss)
 
-        # Validación
-        model.eval()  # Poner el modelo en modo de evaluación
+        # Validation
+        model.eval()  # Set the model to evaluation mode
         val_loss = 0.0
         for pdb_id, loader in val_loaders.items():
             for inputs, labels in loader:
-                outputs = model(inputs)  # Paso hacia adelante
+                outputs = model(inputs)  # Forward pass
                 labels = labels.view(-1, 1)
-                loss = criterion(outputs.squeeze(), labels.squeeze())  # Calcular la pérdida
+                loss = criterion(outputs.squeeze(), labels.squeeze())  # Calculate the loss
                 val_loss += loss.item() * inputs.size(0)
             val_loss /= len(loader.dataset)
 
-        # Imprimir las estadísticas de validación
+        # Print validation statistics
         print(f'Epoch {epoch + 1}/{num_epochs}, Validation Loss: {val_loss:.4f}')
-
-        # Prueba
-    # Prueba
-    # Prueba
-    # Prueba
+        val_losses.append(val_loss)
+    
+    # Testing
     test_loss = 0.0
     correct_predictions = 0
     total_predictions = 0
+    val_probs = []
+    val_labels = []
     for pdb_id, loader in test_loaders.items():
         for inputs, labels in loader:
-            outputs = model(inputs)  # Paso hacia adelante
+            outputs = model(inputs)  # Forward pass
             labels = labels.view(-1, 1)
-            loss = criterion(outputs.squeeze(), labels.squeeze())  # Calcular la pérdida
+            loss = criterion(outputs.squeeze(), labels.squeeze())  # Calculate the loss
             test_loss += loss.item() * inputs.size(0)
 
-            # Calcular la precisión
-            predicted = torch.round(outputs)  # Redondear las salidas del modelo para obtener las predicciones
+            # Calculate accuracy
+            predicted = torch.round(outputs)  # Round the model outputs to get predictions
             total_predictions += labels.size(0)
             correct_predictions += (predicted == labels).sum().item()
+            
+            val_probs.extend(outputs.detach().numpy())
+            val_labels.extend(labels.numpy())
+
 
         test_loss /= len(loader.dataset)
-
-    # Imprimir las estadísticas de prueba
+        
+    fpr, tpr, thresholds = roc_curve(val_labels, val_probs)
+    roc_auc = auc(fpr, tpr)
+    # Print test statistics
     print(f'Test Loss: {test_loss:.4f}')
     print(f'Test Accuracy: {correct_predictions / total_predictions * 100:.2f}%')
+    print(f'ROC AUC: {roc_auc:.2f}')
 
-    # Guardar el modelo
-    torch.save(model.state_dict(), 'model.pth')
+    plt.figure(figsize=(10, 5))
+    plt.plot(train_losses, label='Training loss')
+    plt.plot(val_losses, label='Validation loss')
+    plt.title('Training and Validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.show()
+    # Plot ROC curve
+    plt.figure()
+    plt.plot(fpr, tpr, label='ROC curve (area = %0.2f)' % roc_auc)
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.xlim([0.0, 1.0])
+    plt.ylim([0.0, 1.05])
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('Receiver Operating Characteristic')
+    plt.legend(loc="lower right")
+    plt.show()
+    # Save the model
+    torch.save(model.state_dict(), 'model_100.pth')

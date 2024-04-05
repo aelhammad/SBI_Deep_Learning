@@ -131,7 +131,7 @@ def predict_pdb(pdb_file_path, verbose=False):
     except FileNotFoundError: # Handle file not found error
         print("Error: PDB file not found.")
     except PDBConstructionException as e:
-        print(f"Error: Unable to parse the PDB file: {e}")
+        print(f"Error: Unable to parse the PDB file: {e}") # Handle PDB construction exception eg. corrupted PDB files
     except Exception as e: # Handle other exceptions
         print(f"Error: An unexpected error occurred: {e}")
 

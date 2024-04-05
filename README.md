@@ -1,8 +1,16 @@
-This project consists of a deep learning model able to predict the binding pocket of a protein structure. Therefore it takes a PDB file as the input and returns a PDB file of the binding pocket and a list of the aminoacids that form that binding pocket
+Deep Pocket is a Python package designed to predict the binding pocket of a protein structure provided by the user. Leveraging deep learning techniques, the package utilizes a neural network model trained on a dataset comprising 1000 Protein Data Bank (PDB) files. With its focus on accuracy and efficiency, Deep Pocket aims to assist bioinformaticians in identifying binding pockets within protein structures, aiding in drug discovery, protein function analysis, and molecular docking studies.
 
+Deep Pocket is primarily aimed at bioinformaticians, computational biologists, and researchers working in the field of structural biology. It provides a valuable tool for analyzing protein structures and identifying potential binding sites, facilitating drug discovery, protein-protein interaction studies, and other molecular biology applications.
+
+Whether you are conducting research in academia, working in the pharmaceutical industry, or exploring protein structure-function relationships, Deep Pocket offers a robust and efficient solution for predicting binding pockets with high accuracy and reliability.
+
+Main Features:
+- Predict Binding Pockets: Utilize the trained neural network model to predict the binding pockets of a protein structure.
+- Bioinformatic Applications: Targeted towards bioinformaticians and researchers in the life sciences for various computational biology tasks.
+- Deep Learning Techniques: Harnesses the power of deep learning to accurately identify binding sites within protein structures.
+- Ease of Use: Designed with user-friendliness in mind, allowing for seamless integration into existing workflows.
 
 For this software to work it is required to have a working version of the dssp software (http://swift.cmbi.ru.nl/gv/dssp/). The recommended version is the 4.0.4 but any new version who runs the 'mkdssp' binary should work.
-
 
 For MACOS users dssp can be installed with brew: 
 
@@ -17,80 +25,3 @@ dssp can also be installed with conda, be aware that this may not be the case fo
 conda install salilab::dssp
 
 
-1. **Package Overview:**
-Package Overview
-Deep Pocket
-
-Deep Pocket is a Python package designed to predict the binding pocket of a protein structure provided by the user. Leveraging deep learning techniques, the package utilizes a neural network model trained on a dataset comprising 1000 Protein Data Bank (PDB) files. With its focus on accuracy and efficiency, Deep Pocket aims to assist bioinformaticians in identifying binding pockets within protein structures, aiding in drug discovery, protein function analysis, and molecular docking studies.
-
-Deep Pocket is primarily aimed at bioinformaticians, computational biologists, and researchers working in the field of structural biology. It provides a valuable tool for analyzing protein structures and identifying potential binding sites, facilitating drug discovery, protein-protein interaction studies, and other molecular biology applications.
-
-Whether you are conducting research in academia, working in the pharmaceutical industry, or exploring protein structure-function relationships, Deep Pocket offers a robust and efficient solution for predicting binding pockets with high accuracy and reliability.
-
-Main Features:
-- Predict Binding Pockets: Utilize the trained neural network model to predict the binding pockets of a protein structure.
-- Bioinformatic Applications: Targeted towards bioinformaticians and researchers in the life sciences for various computational biology tasks.
-- Deep Learning Techniques: Harnesses the power of deep learning to accurately identify binding sites within protein structures.
-Ease of Use: Designed with user-friendliness in mind, allowing for seamless integration into existing workflows.
-
-2. **Installation:**
-To install Deep Pocket, please follow these steps:
-1. Clone the Repository
-Clone the Deep Pocket repository from GitHub to your local machine:
-git clone https://github.com/yourusername/deep-pocket.git
-2. Navigate to the Repository
-Navigate to the cloned Deep Pocket repository directory:
-cd deep-pocket
-3. Create a Virtual Environment (Optional but Recommended)
-It is recommended to create a virtual environment to manage dependencies for Deep Pocket. If you prefer to use virtual environments, you can create one using the following command:
-python3 -m venv venv
-Activate the virtual environment:
--On macOS/Linux:
-source venv/bin/activate
--On Windows:
-venv\Scripts\activate
-4. Install Requirements
-Install the required dependencies listed in the requirements.txt file using pip:
-pip install -r requirements.txt
-This command will install the necessary packages, including:
-
-Biopython
-NumPy
-Torch
-Torchvision
-Torchaudio
-Pandas
-Scikit-learn
-5. Verify Installation
-To verify that Deep Pocket and its dependencies were installed successfully, you can run the following command:
-python -c "import deep_pocket; print('Deep Pocket installed successfully')"
-If installed correctly, you should see the message "Deep Pocket installed successfully" printed in the terminal.
-
-
-
-3. **Usage:**
-   - What are the main functionalities provided by your package?
-   - Can you provide some examples or use cases demonstrating how users can utilize your package?
-   - Are there any important configuration settings or parameters users need to be aware of?
-
-4. **Documentation:**
-   - How is your code documented? Do you use docstrings, comments, or external documentation files?
-   - Can users access the documentation easily? Is there a specific command or URL they need to use?
-
-5. **Troubleshooting and Support:**
-   - What should users do if they encounter errors or issues while using your package?
-   - Do you provide any support channels, such as email, forums, or GitHub issues, where users can ask questions or report problems?
-
-6. **Contributing:**
-   - Are you open to contributions from other developers? If so, what is the process for contributing code or suggesting improvements?
-   - Do you have any guidelines or standards for contributing to your package?
-
-7. **Versioning and Updates:**
-   - How do you manage versioning for your package?
-   - How frequently do you release updates or new versions? Is there a specific schedule or criteria for releasing updates?
-
-8. **License and Legal Information:**
-   - What license is your package released under? Are there any legal terms or conditions users need to be aware of?
-   - Do you provide any warranty or disclaimer regarding the use of your package?
-
-By addressing these questions, you can create a comprehensive manual for your package that provides users with all the information they need to understand, install, and effectively utilize your package.

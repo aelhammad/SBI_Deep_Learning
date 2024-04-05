@@ -1,7 +1,0 @@
-biopython==1.83
-numpy
-torch
-torchvision
-torchaudio
-pandas
-scikit-learn

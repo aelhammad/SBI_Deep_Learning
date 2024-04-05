@@ -12,6 +12,7 @@ setup(
         'torchaudio',
         'pandas',
         'scikit-learn',
+        'matplotlib',
     ],
     python_requires='>=3.6',       
     author='Allal El Hommad, Javier Herranz and Daniel Perez',
@@ -19,7 +20,7 @@ setup(
     description='Deep Pocket is a Python package that predicts binding pockets within protein structures using state-of-the-art deep learning techniques. By leveraging a neural network model trained on a diverse dataset of Protein Data Bank (PDB) files, Deep Pocket offers bioinformaticians and computational biologists a powerful tool for accurately identifying crucial binding sites. This package is designed to streamline drug discovery, protein function analysis, and molecular docking studies, making it an essential resource for researchers in structural biology and related fields.',  
     long_description=open('README.md').read(),  
     long_description_content_type='text/markdown',  
-    url='https://github.com/yourusername/deep-pocket',  # Project URL
+    url='https://github.com/aelhammad/deep-pocket',
     license='MIT',                 
     classifiers=[                  
         'License :: OSI Approved :: MIT License',

@@ -15,7 +15,7 @@ def predict_pdb(pdb_file_path, verbose=False):
     Parameters:
         pdb_file_path (str): Path to the input PDB file.
         verbose (bool): Flag to enable verbose mode.
-        trust_level (float): Trust level for the prediction the 
+        trust_level (float): Trust level for the prediction the binding pockets going from 0.01 to 0.99, being 0.99 the most restrictive.
     Returns:
         None
     '''

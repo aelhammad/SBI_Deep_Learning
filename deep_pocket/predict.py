@@ -1,6 +1,6 @@
 import torch
 import sys
-import time  # Import time module
+import time
 from model import MyModel, preprocess_features
 from feature_extraction import ProteinFeatures
 from Bio.PDB import PDBParser

@@ -55,6 +55,11 @@ If installed correctly, you should see the message "Deep Pocket installed succes
    - Can you provide some examples or use cases demonstrating how users can utilize your package?
    - Are there any important configuration settings or parameters users need to be aware of?
 
+   python3 predict.py ../example_pdb/pdb3s71.pdb
+   python3 predict.py ../example_pdb/pdb1u72.pdb 
+   python3 predict.py ../example_pdb/pdb1h60.pdb   
+
+
 4. **Documentation:**
    - How is your code documented? Do you use docstrings, comments, or external documentation files?
    - Can users access the documentation easily? Is there a specific command or URL they need to use?

@@ -1,83 +1,41 @@
+ ____  _____ _____ ____        ____  ____  ____  _  __ _____ _____ 
+/  _ \/  __//  __//  __\      /  __\/  _ \/   _\/ |/ //  __//__ __\
+| | \||  \  |  \  |  \/|_____ |  \/|| / \||  /  |   / |  \    / \  
+| |_/||  /_ |  /_ |  __/\____\|  __/| \_/||  \_ |   \ |  /_   | |  
+\____/\____\\____\\_/         \_/   \____/\____/\_|\_\\____\  \_/  
+                                                                   
 
-1. **Package Overview:**
-Package Overview
-Deep Pocket
+deep-pocket is a compehensive program that predicts ligand sites of proteins using a deep learning model. 
 
-Deep Pocket is a Python package designed to predict the binding pocket of a protein structure provided by the user. Leveraging deep learning techniques, the package utilizes a neural network model trained on a dataset comprising 1000 Protein Data Bank (PDB) files. With its focus on accuracy and efficiency, Deep Pocket aims to assist bioinformaticians in identifying binding pockets within protein structures, aiding in drug discovery, protein function analysis, and molecular docking studies.
+deep-pocket can be used with the following command: 
 
-Deep Pocket is primarily aimed at bioinformaticians, computational biologists, and researchers working in the field of structural biology. It provides a valuable tool for analyzing protein structures and identifying potential binding sites, facilitating drug discovery, protein-protein interaction studies, and other molecular biology applications.
+python predict.py [options] <pdb_file_path>
 
-Whether you are conducting research in academia, working in the pharmaceutical industry, or exploring protein structure-function relationships, Deep Pocket offers a robust and efficient solution for predicting binding pockets with high accuracy and reliability.
+Options
 
-Main Features:
-- Predict Binding Pockets: Utilize the trained neural network model to predict the binding pockets of a protein structure.
-- Bioinformatic Applications: Targeted towards bioinformaticians and researchers in the life sciences for various computational biology tasks.
-- Deep Learning Techniques: Harnesses the power of deep learning to accurately identify binding sites within protein structures.
-Ease of Use: Designed with user-friendliness in mind, allowing for seamless integration into existing workflows.
+--trust_level: Trust level for the prediction, accepted values go from 0.01 to 0.99 (default: 0.7)
+--verbose, -v: Enable verbose mode
+-h: Prints usage information 
 
-2. **Installation:**
-To install Deep Pocket, please follow these steps:
-1. Clone the Repository
-Clone the Deep Pocket repository from GitHub to your local machine:
-git clone https://github.com/yourusername/deep-pocket.git
-2. Navigate to the Repository
-Navigate to the cloned Deep Pocket repository directory:
-cd deep-pocket
-3. Create a Virtual Environment (Optional but Recommended)
-It is recommended to create a virtual environment to manage dependencies for Deep Pocket. If you prefer to use virtual environments, you can create one using the following command:
-python3 -m venv venv
-Activate the virtual environment:
--On macOS/Linux:
-source venv/bin/activate
--On Windows:
-venv\Scripts\activate
-4. Install Requirements
-Install the required dependencies listed in the requirements.txt file using pip:
-pip install -r requirements.txt
-This command will install the necessary packages, including:
+Arguments
 
-Biopython
-NumPy
-Torch
-Torchvision
-Torchaudio
-Pandas
-Scikit-learn
-5. Verify Installation
-To verify that Deep Pocket and its dependencies were installed successfully, you can run the following command:
-python -c "import deep_pocket; print('Deep Pocket installed successfully')"
-If installed correctly, you should see the message "Deep Pocket installed successfully" printed in the terminal.
+pdb_file_path: Path to the input PDB file
+
+Output
+
+The program will output the predicted binding pocket residues to the console and save them to a text file (<pdb_file_path>_predicted_pocket.txt). Additionally, it will save the predicted binding pocket residues to a PDB file (predicted_binding_pocket_<pdb_file_path>).
+
+Example usage
+
+python3 predict.py --trust_level 0.8 my_protein.pdb
+
+python predict.py -v my_protein.pdb
+
+python predict.py -v --trust_level 0.3 my_protein.pdb
 
 
+Contact
 
-3. **Usage:**
-   - What are the main functionalities provided by your package?
-   - Can you provide some examples or use cases demonstrating how users can utilize your package?
-   - Are there any important configuration settings or parameters users need to be aware of?
-
-   python3 predict.py ../example_pdb/pdb3s71.pdb
-   python3 predict.py ../example_pdb/pdb1u72.pdb 
-   python3 predict.py ../example_pdb/pdb1h60.pdb   
+For any inquiries or assistance, please contact : allal.elhommad01@estudiant.upf.edu, javier.herranz01@estudiant.upf.edu, daniel.perez15@estudiant.upf.edu.
 
 
-4. **Documentation:**
-   - How is your code documented? Do you use docstrings, comments, or external documentation files?
-   - Can users access the documentation easily? Is there a specific command or URL they need to use?
-
-5. **Troubleshooting and Support:**
-   - What should users do if they encounter errors or issues while using your package?
-   - Do you provide any support channels, such as email, forums, or GitHub issues, where users can ask questions or report problems?
-
-6. **Contributing:**
-   - Are you open to contributions from other developers? If so, what is the process for contributing code or suggesting improvements?
-   - Do you have any guidelines or standards for contributing to your package?
-
-7. **Versioning and Updates:**
-   - How do you manage versioning for your package?
-   - How frequently do you release updates or new versions? Is there a specific schedule or criteria for releasing updates?
-
-8. **License and Legal Information:**
-   - What license is your package released under? Are there any legal terms or conditions users need to be aware of?
-   - Do you provide any warranty or disclaimer regarding the use of your package?
-
-By addressing these questions, you can create a comprehensive manual for your package that provides users with all the information they need to understand, install, and effectively utilize your package.

@@ -24,8 +24,8 @@ def predict_pdb(pdb_file_path, verbose=False):
             raise ValueError("Error: Input file must have a .pdb extension")
 
         # Check if the trust_level is within the valid range
-        if args.trust_level > 0.99:
-            raise ValueError("Error: Trust level must not exceed 0.99")
+        if args.trust_level > 0.99 or args.trust_level < 0.01:
+            raise ValueError("Error: Trust level must be between 0.01 and 0.99")
         
         print("Performing prediction", end="", flush=True)
         for _ in range(3):  # Print three dots

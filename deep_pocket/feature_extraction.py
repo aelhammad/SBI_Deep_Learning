@@ -25,7 +25,7 @@ class ProteinFeatures:
     
     def __init__(self, pdb_file, pocket_pdb_file=None):
         # Set the path to the DSSP executable
-        self.dssp_executable = './mkdssp' 
+        self.dssp_executable = 'mkdssp' 
         self.pocket_pdb_file = pocket_pdb_file
         self.pdb_file = pdb_file
         self.parser = PDBParser(QUIET=True)

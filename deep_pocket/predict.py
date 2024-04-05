@@ -1,8 +1,8 @@
 import torch
 import sys
 import time  # Import time module
-from deep_pocket.model import MyModel, preprocess_features
-from feature_extraction_allal import ProteinFeatures
+from model import MyModel, preprocess_features
+from feature_extraction import ProteinFeatures
 from Bio.PDB import PDBParser
 import os
 import argparse
@@ -40,7 +40,7 @@ def predict_pdb(pdb_file_path, verbose=False):
         # Load the pre-trained model
         input_size = 34
         model = MyModel(input_size)
-        model.load_state_dict(torch.load('models/model_100.pth'))
+        model.load_state_dict(torch.load('../models/model_100.pth'))
         model.eval()
 
         # Load and process the PDB data using preprocess_features function
